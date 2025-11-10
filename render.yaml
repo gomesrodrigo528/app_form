@@ -5,16 +5,12 @@ services:
     buildCommand: |
       python -m pip install --upgrade pip
       pip install -r requirements.txt
-    # Remove o startCommand para usar o Procfile
+    # O Procfile será usado automaticamente
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
-      - key: PYTHONPATH
-        value: "/opt/render/project/src"
       - key: FLASK_APP
-        value: "wsgi.py"
-      - key: FLASK_ENV
-        value: "production"
+        value: "app:app"
       - key: FLASK_ENV
         value: "production"
       - key: PYTHONUNBUFFERED
