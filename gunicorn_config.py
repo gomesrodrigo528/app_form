@@ -5,7 +5,7 @@ import os
 workers = (2 * multiprocessing.cpu_count()) + 1
 
 # Nome do módulo da aplicação
-wsgi_app = "wsgi:application"
+wsgi_app = "app:app"
 
 # Endereço e porta
 bind = f"0.0.0.0:{os.environ.get('PORT', '5000')}"
