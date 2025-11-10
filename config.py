@@ -16,7 +16,7 @@ class Config:
     
     # Application
     APP_NAME = os.getenv('APP_NAME', 'FormApp')
-    BASE_URL = os.getenv('BASE_URL', 'https://ab34d1558ed8.ngrok-free.app')
+    BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
     
     # Session
     SESSION_COOKIE_SECURE = False  # True em produção com HTTPS

@@ -1,13 +1,14 @@
 import multiprocessing
+import os
 
 # Número de workers = (2 x núcleos) + 1
 workers = (2 * multiprocessing.cpu_count()) + 1
 
 # Nome do módulo da aplicação
-wsgi_app = "app:create_app()"
+wsgi_app = "wsgi:application"
 
 # Endereço e porta
-bind = "0.0.0.0:${PORT:-5000}"
+bind = f"0.0.0.0:{os.environ.get('PORT', '5000')}"
 
 # Configurações de logging
 loglevel = "info"
