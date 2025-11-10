@@ -5,10 +5,13 @@ import os
 workers = (2 * multiprocessing.cpu_count()) + 1
 
 # Nome do módulo da aplicação
-wsgi_app = "app:app"
+wsgi_app = "wsgi:application"
 
-# Endereço e porta
+# Endereço e porta - usa a porta do Render ou 5000 localmente
 bind = f"0.0.0.0:{os.environ.get('PORT', '5000')}"
+
+# Número de threads por worker
+threads = 4
 
 # Configurações de logging
 loglevel = "info"
