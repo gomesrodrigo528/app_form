@@ -2,15 +2,22 @@ services:
   - type: web
     name: formapp
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn -c gunicorn_config.py app:create_app()"
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -e .
+      pip install -r requirements.txt
+    startCommand: "gunicorn -c gunicorn_config.py wsgi:application"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: PYTHONPATH
+        value: "/opt/render/project/src"
       - key: FLASK_APP
-        value: "app.py"
+        value: "wsgi:application"
       - key: FLASK_ENV
         value: "production"
+      - key: PYTHONUNBUFFERED
+        value: "true"
       - key: SECRET_KEY
         generateValue: true
       - key: SUPABASE_URL
