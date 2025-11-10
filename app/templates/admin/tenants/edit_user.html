@@ -1,0 +1,69 @@
+{% extends "admin/base_admin.html" %}
+
+{% block page_title %}Editar Usuário{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6">
+        <h2 class="text-2xl font-semibold text-gray-800">Editar Usuário</h2>
+        <p class="mt-1 text-sm text-gray-500">Atualize os dados do usuário</p>
+    </div>
+
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <form method="POST" action="{{ url_for('admin_tenants.edit_tenant_user', tenant_id=tenant_id, user_id=user.id) }}" class="p-6">
+            <div class="space-y-6">
+                <div>
+                    <label for="full_name" class="block text-sm font-medium text-gray-700">Nome Completo *</label>
+                    <input type="text" name="full_name" id="full_name" value="{{ user.full_name }}" required
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">E-mail *</label>
+                    <input type="email" name="email" id="email" value="{{ user.email }}" required
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="new_password" class="block text-sm font-medium text-gray-700">Nova Senha</label>
+                    <input type="password" name="new_password" id="new_password"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <p class="mt-1 text-xs text-gray-500">Deixe em branco para manter a senha atual</p>
+                </div>
+
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700">Tipo de Acesso *</label>
+                    <select name="role" id="role" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrador</option>
+                        <option value="user" {% if user.role == 'user' %}selected{% endif %}>Usuário Padrão</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Administradores têm acesso total ao sistema</p>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-between items-center">
+                <div>
+                    <span class="text-sm text-gray-500">
+                        {% if user.last_login %}
+                        Último acesso: {{ user.last_login|datetimeformat('%d/%m/%Y %H:%M') }}
+                        {% else %}
+                        Nunca acessou
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="space-x-3">
+                    <a href="{{ url_for('admin_tenants.list_tenant_users', tenant_id=tenant_id) }}"
+                       class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancelar
+                    </a>
+                    <button type="submit"
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

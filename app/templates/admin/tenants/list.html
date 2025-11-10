@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+
+{% block header_title %}Gerenciar Empresas{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800">Empresas Cadastradas</h2>
+    <a href="{{ url_for('admin_tenants.create_tenant') }}" 
+       class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        <i class="fas fa-plus mr-2"></i>Nova Empresa
+    </a>
+</div>
+
+<div class="overflow-x-auto">
+    <table class="min-w-full bg-white rounded-lg overflow-hidden">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criado em</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for tenant in tenants %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ tenant.name }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-500">{{ tenant.slug }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ 'bg-green-100 text-green-800' if tenant.is_active else 'bg-red-100 text-red-800' }}">
+                        {{ 'Ativo' if tenant.is_active else 'Inativo' }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ tenant.created_at|datetimeformat('%d/%m/%Y %H:%M') }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="{{ url_for('admin_tenants.edit_tenant', tenant_id=tenant.id) }}" 
+                       class="text-indigo-600 hover:text-indigo-900 mr-4">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <a href="{{ url_for('admin_tenants.list_tenant_users', tenant_id=tenant.id) }}" 
+                       class="text-blue-600 hover:text-blue-900 mr-4">
+                        <i class="fas fa-users"></i> Usuários
+                    </a>
+                    <form action="{{ url_for('admin_tenants.delete_tenant', tenant_id=tenant.id) }}" 
+                          method="POST" class="inline" 
+                          onsubmit="return confirm('Tem certeza que deseja remover esta empresa? Esta ação não pode ser desfeita.');">
+                        <button type="submit" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i> Remover
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                    Nenhuma empresa cadastrada.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

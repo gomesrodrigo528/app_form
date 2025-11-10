@@ -1,0 +1,102 @@
+<!-- Form Field Component -->
+<div class="mb-6 border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div class="flex justify-between items-center mb-2">
+        <h4 class="font-medium text-gray-800">{{ field.label }}{% if field.is_required %} <span class="text-red-500">*</span>{% endif %}</h4>
+        <div class="flex space-x-2">
+            <a href="{{ url_for('admin.form_edit', form_id=form.id, edit_field=field.id) }}#addFieldForm" 
+               class="text-blue-600 hover:text-blue-800" 
+               title="Editar"
+               onclick="event.preventDefault(); document.getElementById('edit-field-{{ field.id }}').submit();">
+                <i class="fas fa-edit"></i>
+            </a>
+            <form id="edit-field-{{ field.id }}" action="{{ url_for('admin.form_edit', form_id=form.id) }}" method="GET" style="display: none;">
+                <input type="hidden" name="edit_field" value="{{ field.id }}">
+            </form>
+            <form action="{{ url_for('admin.field_delete', form_id=form.id, field_id=field.id) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja remover este campo?');">
+                <button type="submit" class="text-red-600 hover:text-red-800" title="Remover">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    {% if field.field_type == 'text' or field.field_type == 'email' or field.field_type == 'phone' or field.field_type == 'date' %}
+        <input type="{{ field.field_type }}" 
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+               placeholder="{{ field.placeholder }}"
+               {% if field.is_required %}required{% endif %}>
+    
+    {% elif field.field_type == 'textarea' %}
+        <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows="3"
+                  placeholder="{{ field.placeholder }}"
+                  {% if field.is_required %}required{% endif %}></textarea>
+    
+    {% elif field.field_type == 'select' %}
+        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                {% if field.is_required %}required{% endif %}>
+            <option value="" disabled selected>Selecione uma opção</option>
+            {% if field.options %}
+                {% for option in field.options %}
+                    <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
+    
+    {% elif field.field_type == 'radio' %}
+        <div class="space-y-2">
+            {% if field.options %}
+                {% for option in field.options %}
+                    <div class="flex items-center">
+                        <input type="radio" 
+                               id="field_{{ field.id }}_{{ loop.index }}" 
+                               name="field_{{ field.id }}" 
+                               value="{{ option }}"
+                               class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                               {% if field.is_required and loop.first %}required{% endif %}>
+                        <label for="field_{{ field.id }}_{{ loop.index }}" class="ml-2 block text-sm text-gray-700">
+                            {{ option }}
+                        </label>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-sm text-gray-500">Nenhuma opção definida</p>
+            {% endif %}
+        </div>
+    
+    {% elif field.field_type == 'checkbox' %}
+        <div class="space-y-2">
+            {% if field.options %}
+                {% for option in field.options %}
+                    <div class="flex items-center">
+                        <input type="checkbox" 
+                               id="field_{{ field.id }}_{{ loop.index }}" 
+                               name="field_{{ field.id }}[]" 
+                               value="{{ option }}"
+                               class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                               {% if field.is_required and loop.first %}required{% endif %}>
+                        <label for="field_{{ field.id }}_{{ loop.index }}" class="ml-2 block text-sm text-gray-700">
+                            {{ option }}
+                        </label>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="field_{{ field.id }}" 
+                           name="field_{{ field.id }}" 
+                           value="Sim"
+                           class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                           {% if field.is_required %}required{% endif %}>
+                    <label for="field_{{ field.id }}" class="ml-2 block text-sm text-gray-700">
+                        {{ field.placeholder or 'Marcar' }}
+                    </label>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    {% if field.placeholder and field.field_type not in ['checkbox', 'radio', 'select'] %}
+        <p class="mt-1 text-xs text-gray-500">{{ field.placeholder }}</p>
+    {% endif %}
+</div>

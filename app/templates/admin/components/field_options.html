@@ -1,0 +1,117 @@
+<!-- Field Options Component -->
+<div id="fieldOptions" class="hidden mb-4 p-4 bg-gray-50 rounded-lg">
+    <div id="optionsContainer">
+        <!-- Options will be added here dynamically -->
+    </div>
+    
+    <button type="button" 
+            onclick="addOption()" 
+            class="mt-2 text-blue-600 hover:text-blue-700 text-sm flex items-center">
+        <i class="fas fa-plus-circle mr-1"></i> Adicionar Opção
+    </button>
+</div>
+
+<!-- Template for option item (hidden, used by JavaScript) -->
+<template id="optionTemplate">
+    <div class="option-item flex items-center gap-2 mb-2">
+        <input type="text" 
+               name="field_options[]" 
+               placeholder="Texto da opção"
+               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button type="button" 
+                onclick="removeOption(this)" 
+                class="text-red-500 hover:text-red-700">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</template>
+
+<script>
+// Load existing options if in edit mode
+function loadExistingOptions() {
+    const optionsContainer = document.getElementById('optionsContainer');
+    const fieldEdit = JSON.parse(document.getElementById('field-edit-data').dataset.fieldEdit || 'null');
+    
+    if (fieldEdit && fieldEdit.options && fieldEdit.options.length > 0) {
+        optionsContainer.innerHTML = ''; // Clear any existing options
+        fieldEdit.options.forEach(option => {
+            if (option) {  // Skip null or undefined options
+                const optionItem = document.createElement('div');
+                optionItem.className = 'option-item flex items-center gap-2 mb-2';
+                optionItem.innerHTML = `
+                    <input type="text" 
+                           name="field_options[]" 
+                           value="${option.replace(/"/g, '&quot;')}"
+                           placeholder="Texto da opção"
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <button type="button" 
+                            onclick="removeOption(this)" 
+                            class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                optionsContainer.appendChild(optionItem);
+            }
+        });
+    } else if (document.querySelectorAll('.option-item').length === 0) {
+        // Add two empty options by default for new fields
+        addOption();
+        addOption();
+    }
+}
+
+// Show/hide options based on field type
+document.addEventListener('DOMContentLoaded', function() {
+    const fieldTypeSelect = document.querySelector('select[name="field_type"]');
+    const fieldOptions = document.getElementById('fieldOptions');
+    
+    if (fieldTypeSelect) {
+        fieldTypeSelect.addEventListener('change', function() {
+            if (this.value === 'checkbox' || this.value === 'radio' || this.value === 'select') {
+                fieldOptions.classList.remove('hidden');
+                // Only add default options if we're not in edit mode or if no options exist
+                if (document.querySelectorAll('.option-item').length === 0) {
+                    addOption();
+                    addOption(); // Add two options by default
+                }
+            } else {
+                fieldOptions.classList.add('hidden');
+            }
+        });
+        
+        // Show options on page load if field type is select, radio or checkbox
+        if (fieldTypeSelect.value === 'checkbox' || fieldTypeSelect.value === 'radio' || fieldTypeSelect.value === 'select') {
+            fieldOptions.classList.remove('hidden');
+            // Load existing options if in edit mode
+            loadExistingOptions();
+        }
+    }
+});
+
+// Add a new option
+function addOption() {
+    const optionsContainer = document.getElementById('optionsContainer');
+    const template = document.getElementById('optionTemplate');
+    const clone = template.content.cloneNode(true);
+    
+    // Add the new option
+    optionsContainer.appendChild(clone);
+    
+    // Focus the new input
+    const inputs = optionsContainer.querySelectorAll('input[type="text"]');
+    if (inputs.length > 0) {
+        inputs[inputs.length - 1].focus();
+    }
+    
+    return true; // Return true to prevent form submission
+}
+
+// Remove an option
+function removeOption(button) {
+    const optionItem = button.closest('.option-item');
+    if (optionItem) {
+        optionItem.remove();
+    }
+    return false; // Prevent form submission
+}
+</script>

@@ -1,0 +1,92 @@
+{% extends "tenant/base.html" %}
+
+{% block title %}Usuários da Empresa{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Usuários da Empresa</h1>
+            <p class="text-gray-600">Gerencie os usuários com acesso ao sistema</p>
+        </div>
+        <a href="{{ url_for('tenant_users.add_user') }}" 
+           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center">
+            <i class="fas fa-user-plus mr-2"></i> Adicionar Usuário
+        </a>
+    </div>
+
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        {% if users %}
+            <ul class="divide-y divide-gray-200">
+                {% for user in users %}
+                <li class="px-6 py-4 hover:bg-gray-50">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <span class="text-blue-600 font-medium">{{ user.full_name[0]|upper }}</span>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ user.full_name }}
+                                {% if user.role == 'admin' %}
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Administrador
+                                </span>
+                                {% else %}
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    Usuário
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                {{ user.email }}
+                            </div>
+                        </div>
+                        <div class="ml-auto">
+                            <span class="text-xs text-gray-500">
+                                {% if user.last_login %}
+                                Último acesso: {{ user.last_login|datetimeformat('%d/%m/%Y %H:%M') }}
+                                {% else %}
+                                Nunca acessou
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="ml-6 flex space-x-4">
+                            <a href="{{ url_for('tenant_users.edit_user', user_id=user.id) }}" 
+                               class="text-indigo-600 hover:text-indigo-900"
+                               title="Editar usuário">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% if user.id != current_user.id %}
+                            <form method="POST" action="{{ url_for('tenant_users.delete_user', user_id=user.id) }}" 
+                                  onsubmit="return confirm('Tem certeza que deseja remover este usuário?');"
+                                  class="inline">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="text-red-600 hover:text-red-900" title="Remover usuário">
+                                    <i class="fas fa-user-minus"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="px-6 py-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhum usuário encontrado</h3>
+                <p class="mt-1 text-sm text-gray-500">Comece adicionando um novo usuário.</p>
+                <div class="mt-6">
+                    <a href="{{ url_for('tenant_users.add_user') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-plus -ml-1 mr-2 h-5 w-5"></i>
+                        Novo Usuário
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

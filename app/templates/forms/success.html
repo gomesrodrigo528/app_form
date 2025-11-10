@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Formulário Enviado - {{ tenant.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: {{ tenant.primary_color or '#3B82F6' }};
+        --secondary-color: {{ tenant.secondary_color or '#1E40AF' }};
+    }
+    .btn-whatsapp {
+        background-color: #25D366;
+    }
+    .btn-whatsapp:hover {
+        background-color: #1DA851;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center py-12 px-4">
+    <div class="max-w-2xl w-full">
+        <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
+            <!-- Success Icon -->
+            <div class="mb-6">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                    <i class="fas fa-check text-green-600 text-4xl"></i>
+                </div>
+            </div>
+            
+            <!-- Thank You Message -->
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Formulário Enviado com Sucesso!</h1>
+            
+            {% if settings and settings.thank_you_message %}
+                <p class="text-lg text-gray-600 mb-8">{{ settings.thank_you_message }}</p>
+            {% else %}
+                <p class="text-lg text-gray-600 mb-8">Obrigado por preencher o formulário. Entraremos em contato em breve!</p>
+            {% endif %}
+            
+            <!-- WhatsApp Button -->
+            {% if whatsapp_url %}
+                <div class="mb-6">
+                    <p class="text-gray-700 mb-4">Clique no botão abaixo para enviar suas informações via WhatsApp:</p>
+                    <a href="{{ whatsapp_url }}" target="_blank" 
+                       class="inline-flex items-center btn-whatsapp text-white px-8 py-4 rounded-lg font-semibold text-lg transition shadow-lg hover:shadow-xl">
+                        <i class="fab fa-whatsapp text-2xl mr-3"></i>
+                        Enviar via WhatsApp
+                    </a>
+                </div>
+            {% endif %}
+            
+            <!-- Info Box -->
+            <div class="mt-8 p-6 bg-blue-50 rounded-lg">
+                <div class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-600 text-xl mr-3 mt-1"></i>
+                    <div class="text-left">
+                        <p class="text-sm text-gray-700">
+                            <strong>Suas informações foram salvas com segurança.</strong><br>
+                            Nossa equipe já recebeu seus dados e entrará em contato o mais breve possível.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Company Info -->
+            {% if tenant.logo_url %}
+                <div class="mt-8">
+                    <img src="{{ tenant.logo_url }}" alt="{{ tenant.name }}" class="h-12 mx-auto opacity-50">
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="text-center mt-6 text-gray-600 text-sm">
+            <p>Powered by FormApp</p>
+        </div>
+    </div>
+</div>
+
+{% if whatsapp_url %}
+<script>
+// Auto-redirect para WhatsApp após 3 segundos (opcional)
+// setTimeout(function() {
+//     window.location.href = "{{ whatsapp_url }}";
+// }, 3000);
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "admin/base.html" %}
+
+{% block header_title %}Usuários da Empresa: {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold text-gray-800">Usuários</h2>
+        <a href="{{ url_for('admin_tenants.add_tenant_user', tenant_id=tenant.id) }}" 
+           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <i class="fas fa-user-plus mr-2"></i>Adicionar Usuário
+        </a>
+    </div>
+    <p class="mt-1 text-sm text-gray-500">Gerencie os usuários com acesso a esta empresa</p>
+</div>
+
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Lista de Usuários
+        </h3>
+        <p class="mt-1 text-sm text-gray-500">
+            Todos os usuários que têm acesso a esta empresa.
+        </p>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-b-lg">
+        <ul class="divide-y divide-gray-200">
+            {% for user in users %}
+            <li class="px-6 py-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span class="text-blue-600 font-medium">{{ user.full_name[0]|upper }}</span>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ user.full_name }}
+                            {% if user.role == 'admin' %}
+                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Administrador
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            {{ user.email }}
+                        </div>
+                    </div>
+                    <div class="ml-auto">
+                        <span class="text-xs text-gray-500">
+                            {% if user.last_login %}
+                            Último acesso: {{ user.last_login|datetimeformat('%d/%m/%Y %H:%M') }}
+                            {% else %}
+                            Nunca acessou
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="ml-4 flex space-x-4">
+                        <a href="{{ url_for('admin_tenants.edit_tenant_user', tenant_id=tenant.id, user_id=user.id) }}" 
+                           class="text-indigo-600 hover:text-indigo-900"
+                           title="Editar usuário">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form method="POST" action="{{ url_for('admin_tenants.delete_tenant_user', tenant_id=tenant.id, user_id=user.id) }}" 
+                              onsubmit="return confirm('Tem certeza que deseja remover este usuário?');"
+                              class="inline">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="text-red-600 hover:text-red-900" title="Remover usuário">
+                                <i class="fas fa-user-minus"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </li>
+            {% else %}
+            <li class="px-6 py-8 text-center text-gray-500">
+                <div class="flex flex-col items-center justify-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhum usuário encontrado</h3>
+                    <p class="mt-1 text-sm text-gray-500">Comece adicionando um novo usuário.</p>
+                    <div class="mt-6">
+                        <a href="{{ url_for('admin_tenants.add_tenant_user', tenant_id=tenant.id) }}" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <i class="fas fa-plus -ml-1 mr-2 h-5 w-5"></i>
+                            Novo Usuário
+                        </a>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="mt-6 flex justify-end">
+    <a href="{{ url_for('admin_tenants.list_tenants') }}" 
+       class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        Voltar para a lista de empresas
+    </a>
+</div>
+{% endblock %}

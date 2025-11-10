@@ -1,0 +1,105 @@
+{% extends "admin/base.html" %}
+
+{% block header_title %}Nova Empresa{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white shadow-sm rounded-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6">Cadastrar Nova Empresa</h2>
+        
+        <form method="POST" action="{{ url_for('admin_tenants.create_tenant') }}" class="space-y-6">
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informações da Empresa</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                                Nome da Empresa *
+                            </label>
+                            <input type="text" id="name" name="name" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Ex: Minha Empresa LTDA">
+                        </div>
+                        
+                        <div>
+                            <label for="slug" class="block text-sm font-medium text-gray-700 mb-1">
+                                Slug (URL Amigável) *
+                            </label>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                    {{ request.host_url }}
+                                </span>
+                                <input type="text" id="slug" name="slug" required
+                                    class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    placeholder="minha-empresa">
+                            </div>
+                            <p class="mt-1 text-sm text-gray-500">Deve conter apenas letras minúsculas, números e hífens</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Usuário Administrador</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="admin_name" class="block text-sm font-medium text-gray-700 mb-1">
+                                Nome Completo *
+                            </label>
+                            <input type="text" id="admin_name" name="admin_name" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Nome do administrador">
+                        </div>
+                        
+                        <div>
+                            <label for="admin_email" class="block text-sm font-medium text-gray-700 mb-1">
+                                E-mail *
+                            </label>
+                            <input type="email" id="admin_email" name="admin_email" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="email@empresa.com">
+                        </div>
+                        
+                        <div>
+                            <label for="admin_password" class="block text-sm font-medium text-gray-700 mb-1">
+                                Senha *
+                            </label>
+                            <input type="password" id="admin_password" name="admin_password" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="••••••••">
+                            <p class="mt-1 text-sm text-gray-500">Mínimo de 8 caracteres</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                <a href="{{ url_for('admin_tenants.list_tenants') }}" 
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Criar Empresa e Usuário
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-gerar slug a partir do nome da empresa
+document.getElementById('name').addEventListener('input', function(e) {
+    const slugInput = document.getElementById('slug');
+    if (!slugInput.value) {
+        const slug = e.target.value
+            .toLowerCase()
+            .replace(/[^\w\s]/gi, '')
+            .replace(/\s+/g, '-')
+            .replace(/--+/g, '-');
+        slugInput.value = slug;
+    }
+});
+</script>
+{% endblock %}

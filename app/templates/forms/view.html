@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}{{ form.title }} - {{ tenant.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: {{ tenant.primary_color or '#3B82F6' }};
+        --secondary-color: {{ tenant.secondary_color or '#1E40AF' }};
+    }
+    .btn-primary {
+        background-color: var(--primary-color);
+    }
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+    }
+    .text-primary {
+        color: var(--primary-color);
+    }
+    .border-primary {
+        border-color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-6 md:py-12 px-4">
+    <div class="max-w-2xl mx-auto w-full">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            {% if tenant.logo_url %}
+                <img src="{{ tenant.logo_url }}" alt="{{ tenant.name }}" class="h-16 mx-auto mb-4">
+            {% endif %}
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">{{ form.title }}</h1>
+            {% if form.description %}
+                <p class="text-sm md:text-base text-gray-600 mb-6 md:mb-8">{{ form.description }}</p>
+            {% endif %}
+        </div>
+        
+        <!-- Welcome Message -->
+        {% if settings and settings.welcome_message %}
+            <div class="bg-blue-50 border-l-4 border-primary p-4 mb-6 rounded-lg">
+                <p class="text-gray-700">{{ settings.welcome_message }}</p>
+            </div>
+        {% endif %}
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-lg {% if category == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Form -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6">
+            <form method="POST" action="{{ url_for('forms.form_view', tenant_slug=tenant.slug, form_id=form.id) }}">
+                <!-- Contact Fields (Always present) -->
+                <div class="mb-6">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nome Completo <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="name" name="name" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="Seu nome completo">
+                </div>
+                
+                <div class="mb-6">
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                        Telefone/WhatsApp <span class="text-red-500">*</span>
+                    </label>
+                    <input type="tel" id="phone" name="phone" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="(11) 99999-9999">
+                </div>
+                
+                <div class="mb-6">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        E-mail
+                    </label>
+                    <input type="email" id="email" name="email"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="seu@email.com">
+                </div>
+                
+                <hr class="my-8">
+                
+                <!-- Dynamic Fields -->
+                {% for field in fields %}
+                    <div class="mb-4 md:mb-6">
+                        <label for="field_{{ field.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ field.label }}
+                            {% if field.is_required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        
+                        {% if field.field_type == 'textarea' %}
+                            <textarea id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                      {% if field.is_required %}required{% endif %}
+                                      rows="4"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      placeholder="{{ field.placeholder or '' }}"></textarea>
+                        
+                        {% elif field.field_type == 'select' %}
+                            <select id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                    {% if field.is_required %}required{% endif %}
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Selecione...</option>
+                                {% if field.options %}
+                                    {% for option in field.options %}
+                                        <option value="{{ option }}">{{ option }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        
+                        {% elif field.field_type == 'date' %}
+                            <input type="date" id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                   {% if field.is_required %}required{% endif %}
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        
+                        {% elif field.field_type == 'email' %}
+                            <input type="email" id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                   {% if field.is_required %}required{% endif %}
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="{{ field.placeholder or '' }}">
+                        
+                        {% elif field.field_type == 'phone' %}
+                            <input type="tel" id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                   {% if field.is_required %}required{% endif %}
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="{{ field.placeholder or '' }}">
+                        
+                        
+                        {% elif field.field_type == 'checkbox' %}
+                            <div class="space-y-2" id="checkbox-group-{{ field.id }}">
+                                {% if field.options %}
+                                    {% for option in field.options %}
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="field_{{ field.id }}_{{ loop.index }}" 
+                                                   name="field_{{ field.id }}[]" 
+                                                   value="{{ option }}"
+                                                   class="checkbox-field h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                   data-field-id="{{ field.id }}">
+                                            <label for="field_{{ field.id }}_{{ loop.index }}" class="ml-2 block text-sm text-gray-700">
+                                                {{ option }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                    {% if field.is_required %}
+                                        <input type="hidden" name="field_{{ field.id }}_required" value="1">
+                                    {% endif %}
+                                {% else %}
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="field_{{ field.id }}" 
+                                               name="field_{{ field.id }}" 
+                                               value="Sim"
+                                               {% if field.is_required %}required{% endif %}
+                                               class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        <label for="field_{{ field.id }}" class="ml-2 block text-sm text-gray-700">
+                                            {{ field.placeholder or 'Marcar' }}
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                        {% elif field.field_type == 'radio' %}
+                            <div class="space-y-2">
+                                {% if field.options %}
+                                    {% for option in field.options %}
+                                        <div class="flex items-center">
+                                            <input type="radio" id="field_{{ field.id }}_{{ loop.index }}" 
+                                                   name="field_{{ field.id }}" 
+                                                   value="{{ option }}"
+                                                   {% if field.is_required %}required{% endif %}
+                                                   class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                            <label for="field_{{ field.id }}_{{ loop.index }}" class="ml-2 block text-sm text-gray-700">
+                                                {{ option }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-sm text-red-600">Nenhuma opção definida para este campo de seleção</p>
+                                {% endif %}
+                            </div>
+                            
+                        {% else %}
+                            <input type="text" id="field_{{ field.id }}" name="field_{{ field.id }}" 
+                                   {% if field.is_required %}required{% endif %}
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="{{ field.placeholder or '' }}">
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <button type="submit" id="submitBtn" class="w-full btn-primary text-white py-3 md:py-4 rounded-lg font-semibold text-base md:text-lg transition shadow-lg hover:shadow-xl">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    <span id="btnText">Enviar Formulário</span>
+                    <span id="btnLoading" class="hidden">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>Enviando...
+                    </span>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center mt-8 text-gray-600 text-sm">
+            <p>Powered by FormApp</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Adicionar loading ao enviar formulário
+document.getElementById('formSubmit').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnLoading = document.getElementById('btnLoading');
+    
+    // Desabilitar botão e mostrar loading
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+    btnText.classList.add('hidden');
+    btnLoading.classList.remove('hidden');
+});
+
+// Validação de telefone brasileiro (opcional)
+const phoneInputs = document.querySelectorAll('input[type="tel"]');
+phoneInputs.forEach(input => {
+    input.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        
+        // Formatar telefone brasileiro
+        if (value.length <= 11) {
+            if (value.length <= 2) {
+                e.target.value = value;
+            } else if (value.length <= 6) {
+                e.target.value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+            } else if (value.length <= 10) {
+                e.target.value = `(${value.slice(0, 2)}) ${value.slice(2, 6)}-${value.slice(6)}`;
+            } else {
+                e.target.value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7, 11)}`;
+            }
+        }
+    });
+});
+
+// Validação de checkboxes obrigatórios
+document.querySelector('form').addEventListener('submit', function(e) {
+    // Encontrar todos os grupos de checkboxes obrigatórios
+    const requiredCheckboxGroups = document.querySelectorAll('input[type="hidden"][name$="_required"]');
+    
+    for (const hiddenInput of requiredCheckboxGroups) {
+        const fieldId = hiddenInput.name.replace('_required', '').replace('field_', '');
+        const checkboxes = document.querySelectorAll(`.checkbox-field[data-field-id="${fieldId}"]`);
+        const checked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+        
+        if (!checked) {
+            e.preventDefault();
+            alert(`Por favor, selecione pelo menos uma opção para o campo obrigatório.`);
+            return false;
+        }
+    }
+    
+    // Mostrar loading no botão
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnLoading = document.getElementById('btnLoading');
+    
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+    btnText.classList.add('hidden');
+    btnLoading.classList.remove('hidden');
+    
+    return true;
+});
+</script>
+{% endblock %}

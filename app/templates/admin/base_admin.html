@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="min-h-screen flex bg-gray-50">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-blue-900 text-white flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-50">
+        <!-- Sidebar Header -->
+        <div class="p-6 border-b border-blue-800 flex items-center justify-between">
+            <div class="flex-1">
+                <h1 class="text-xl lg:text-2xl font-bold truncate">{{ session.tenant_name }}</h1>
+                <p class="text-xs lg:text-sm text-blue-300 mt-1 truncate">{{ current_user.full_name }}</p>
+            </div>
+            <!-- Close button (mobile only) -->
+            <button id="closeSidebar" class="lg:hidden text-white hover:text-blue-300 ml-2">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="flex-1 p-4 overflow-y-auto">
+            <a href="{{ url_for('admin.dashboard') }}" class="flex items-center px-4 py-3 mb-2 rounded-lg hover:bg-blue-800 transition {% if request.endpoint == 'admin.dashboard' %}bg-blue-800{% endif %}">
+                <i class="fas fa-chart-line mr-3 w-5"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin.forms_list') }}" class="flex items-center px-4 py-3 mb-2 rounded-lg hover:bg-blue-800 transition {% if 'forms' in request.endpoint %}bg-blue-800{% endif %}">
+                <i class="fas fa-file-alt mr-3 w-5"></i>
+                <span>Formulários</span>
+            </a>
+            <a href="{{ url_for('admin.submissions_list') }}" class="flex items-center px-4 py-3 mb-2 rounded-lg hover:bg-blue-800 transition {% if 'submissions' in request.endpoint %}bg-blue-800{% endif %}">
+                <i class="fas fa-inbox mr-3 w-5"></i>
+                <span>Respostas</span>
+            </a>
+            <a href="{{ url_for('admin.leads_list') }}" class="flex items-center px-4 py-3 mb-2 rounded-lg hover:bg-blue-800 transition {% if 'leads' in request.endpoint %}bg-blue-800{% endif %}">
+                <i class="fas fa-users mr-3 w-5"></i>
+                <span>Leads</span>
+            </a>
+            {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('tenant_users.list_users') }}" class="flex items-center px-4 py-3 mb-2 rounded-lg hover:bg-blue-800 transition {% if 'tenant_users' in request.endpoint %}bg-blue-800{% endif %}">
+                <i class="fas fa-user-shield mr-3 w-5"></i>
+                <span>Usuários</span>
+            </a>
+            {% endif %}
+            <a href="{{ url_for('admin.settings') }}" class="flex items-center px-4 py-3 mb-2 rounded-lg hover:bg-blue-800 transition {% if 'settings' in request.endpoint %}bg-blue-800{% endif %}">
+                <i class="fas fa-cog mr-3 w-5"></i>
+                <span>Configurações</span>
+            </a>
+        </nav>
+        
+        <!-- Logout -->
+        <div class="p-4 border-t border-blue-800">
+            <a href="{{ url_for('auth.logout') }}" class="flex items-center px-4 py-3 rounded-lg hover:bg-blue-800 transition text-red-300">
+                <i class="fas fa-sign-out-alt mr-3 w-5"></i>
+                <span>Sair</span>
+            </a>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-h-screen w-full lg:w-auto">
+        <!-- Mobile Header with Menu Button -->
+        <header class="bg-white shadow-sm sticky top-0 z-30">
+            <div class="px-4 lg:px-8 py-4 flex items-center justify-between">
+                <!-- Mobile Menu Button -->
+                <button id="openSidebar" class="lg:hidden text-gray-600 hover:text-gray-900 mr-4">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                
+                <!-- Page Title -->
+                <h2 class="text-lg lg:text-2xl font-semibold text-gray-800 flex-1">{% block page_title %}Dashboard{% endblock %}</h2>
+                
+                <!-- User Info (mobile) -->
+                <div class="lg:hidden">
+                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                        {{ current_user.full_name[0] }}
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="px-4 lg:px-8 py-4">
+                    {% for category, message in messages %}
+                        <div class="mb-4 p-3 lg:p-4 rounded-lg text-sm lg:text-base {% if category == 'error' %}bg-red-100 text-red-800{% elif category == 'success' %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Page Content -->
+        <div class="p-4 lg:p-8 flex-1">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</div>
+
+<!-- Mobile Menu JavaScript -->
+<script>
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('mobileMenuOverlay');
+const openBtn = document.getElementById('openSidebar');
+const closeBtn = document.getElementById('closeSidebar');
+
+// Abrir menu
+openBtn.addEventListener('click', () => {
+    sidebar.classList.remove('-translate-x-full');
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevenir scroll
+});
+
+// Fechar menu
+function closeSidebar() {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+    document.body.style.overflow = ''; // Restaurar scroll
+}
+
+closeBtn.addEventListener('click', closeSidebar);
+overlay.addEventListener('click', closeSidebar);
+
+// Fechar menu ao clicar em um link (mobile)
+if (window.innerWidth < 1024) {
+    const navLinks = sidebar.querySelectorAll('nav a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', closeSidebar);
+    });
+}
+
+// Fechar menu ao redimensionar para desktop
+window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1024) {
+        closeSidebar();
+    }
+});
+</script>
+{% endblock %}

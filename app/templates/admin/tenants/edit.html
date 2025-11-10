@@ -1,0 +1,96 @@
+{% extends "admin/base.html" %}
+
+{% block header_title %}Editar Empresa{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white shadow-sm rounded-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6">Editar Empresa: {{ tenant.name }}</h2>
+        
+        <form method="POST" action="{{ url_for('admin_tenants.edit_tenant', tenant_id=tenant.id) }}" class="space-y-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                    Nome da Empresa *
+                </label>
+                <input type="text" id="name" name="name" required
+                       value="{{ tenant.name }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <div>
+                <label for="slug" class="block text-sm font-medium text-gray-700 mb-1">
+                    Slug (URL Amigável) *
+                </label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                        {{ request.host_url }}
+                    </span>
+                    <input type="text" id="slug" name="slug" required
+                           value="{{ tenant.slug }}"
+                           class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <p class="mt-1 text-sm text-gray-500">Deve conter apenas letras minúsculas, números e hífens</p>
+            </div>
+            
+            <div class="flex items-center">
+                <input type="checkbox" id="is_active" name="is_active" 
+                       {{ 'checked' if tenant.is_active else '' }}
+                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="is_active" class="ml-2 block text-sm text-gray-700">
+                    Empresa ativa
+                </label>
+            </div>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-blue-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            A empresa foi criada em {{ tenant.created_at|datetimeformat('%d/%m/%Y') }} e 
+                            atualizada pela última vez em {{ tenant.updated_at|datetimeformat('%d/%m/%Y %H:%M') }}.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <a href="{{ url_for('admin_tenants.list_tenants') }}" 
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Voltar para a lista
+                </a>
+                <div class="space-x-4">
+                    <a href="{{ url_for('admin_tenants.list_tenant_users', tenant_id=tenant.id) }}" 
+                       class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Gerenciar Usuários
+                    </a>
+                    <button type="submit" 
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="mt-6 bg-white shadow-sm rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-red-700">Zona de Perigo</h3>
+        </div>
+        <div class="px-6 py-4">
+            <p class="text-sm text-gray-600 mb-4">
+                A remoção de uma empresa é uma ação permanente. Todos os dados associados serão excluídos.
+                Esta ação não pode ser desfeita.
+            </p>
+            <form action="{{ url_for('admin_tenants.delete_tenant', tenant_id=tenant.id) }}" 
+                  method="POST" 
+                  onsubmit="return confirm('Tem certeza que deseja remover permanentemente esta empresa e todos os seus dados? Esta ação não pode ser desfeita.');">
+                <button type="submit" class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Remover Esta Empresa
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

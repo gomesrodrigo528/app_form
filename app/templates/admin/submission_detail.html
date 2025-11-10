@@ -1,0 +1,75 @@
+{% extends "admin/base_admin.html" %}
+
+{% block page_title %}Detalhes da Resposta{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <a href="{{ url_for('admin.submissions_list') }}" class="text-blue-600 hover:text-blue-700">
+            <i class="fas fa-arrow-left mr-2"></i>Voltar para Respostas
+        </a>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm p-8">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-semibold text-gray-800">Detalhes da Resposta</h3>
+            {% if submission.status == 'completed' %}
+                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                    Completa
+                </span>
+            {% else %}
+                <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
+                    Incompleta
+                </span>
+            {% endif %}
+        </div>
+        
+        <!-- Submission Info -->
+        <div class="grid grid-cols-2 gap-6 mb-8 p-6 bg-gray-50 rounded-lg">
+            <div>
+                <p class="text-sm text-gray-600 mb-1">Data de Início</p>
+                <p class="font-medium text-gray-800">{{ submission.started_at[:19] if submission.started_at else '-' }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">Data de Conclusão</p>
+                <p class="font-medium text-gray-800">{{ submission.completed_at[:19] if submission.completed_at else 'Não concluído' }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">Enviado para WhatsApp</p>
+                <p class="font-medium text-gray-800">
+                    {% if submission.whatsapp_sent %}
+                        <i class="fas fa-check-circle text-green-600 mr-1"></i>Sim
+                    {% else %}
+                        <i class="fas fa-times-circle text-red-600 mr-1"></i>Não
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">ID da Submissão</p>
+                <p class="font-medium text-gray-800 text-xs">{{ submission.id }}</p>
+            </div>
+        </div>
+        
+        <!-- Responses -->
+        <h4 class="text-lg font-semibold text-gray-800 mb-4">Respostas</h4>
+        
+        {% if responses %}
+            <div class="space-y-4">
+                {% for response in responses %}
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm font-medium text-gray-700 mb-2">
+                            {{ response.form_fields.label if response.form_fields else 'Campo' }}
+                            {% if response.form_fields and response.form_fields.is_required %}
+                                <span class="text-red-500">*</span>
+                            {% endif %}
+                        </p>
+                        <p class="text-gray-900">{{ response.response_value or '-' }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500 text-center py-8">Nenhuma resposta registrada</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
